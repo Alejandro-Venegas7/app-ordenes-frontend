@@ -81,6 +81,7 @@ const OrdersForm: React.FC<OrdersFormProps> = ({
     setError('');
   };
 
+  // Manejo de la lógica para agregar o actualizar ordenes
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     
@@ -98,14 +99,16 @@ const OrdersForm: React.FC<OrdersFormProps> = ({
 
     try {
       if (editingOrder) {
+        // Si estamos editando, hacemos un PUT para actualizar
         const updatedOrder = { ...orderData, _id: editingOrder._id };
-        await onUpdateOrder(updatedOrder);
+        const response = await axios.put(`https://app-ordenes-backend.onrender.com/api/orders/${editingOrder._id}`, updatedOrder);
+        onUpdateOrder(response.data); // Pasamos el objeto actualizado al componente padre
       } else {
+        // Si estamos creando una nueva orden, hacemos un POST
         const response = await axios.post('https://app-ordenes-backend.onrender.com/api/orders', orderData);
-
-        onAddOrder(response.data);
+        onAddOrder(response.data); // Pasamos la nueva orden al componente padre
       }
-      resetForm();
+      resetForm(); // Limpiamos el formulario después de agregar o actualizar
     } catch (error) {
       console.error('Error:', error);
       setError('Error al procesar la orden');
