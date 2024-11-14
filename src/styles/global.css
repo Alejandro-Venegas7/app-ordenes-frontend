@@ -672,3 +672,105 @@ body {
   font-size: 0.9rem;
   color: #495057;
 }
+
+
+
+
+
+
+
+
+
+/*********************************Dispositivos moviles******************************************************************/
+
+/* Estilos básicos */
+.orders-form-container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+  background: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Estilos para pantallas pequeñas */
+@media (max-width: 768px) {
+  .orders-form-container {
+    padding: 15px;
+    width: 90%;
+    margin: 10px auto;
+  }
+
+  .search-container,
+  .order-id-container {
+    margin-bottom: 20px;
+  }
+
+  .search-input,
+  .input-field,
+  .submit-button,
+  .cancel-button {
+    width: 100%;
+    margin-bottom: 10px;
+    font-size: 1rem;
+    padding: 10px;
+  }
+
+  .status-container p {
+    font-size: 1rem;
+  }
+
+  .status-options {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .status-options label {
+    margin-bottom: 8px;
+  }
+}
+
+/* Estilos de los inputs y botones */
+.input-field,
+.search-input {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  font-size: 1rem;
+  margin-bottom: 15px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.search-input {
+  padding: 10px;
+}
+
+.submit-button,
+.cancel-button {
+  display: inline-block;
+  width: 48%;
+  padding: 12px;
+  font-size: 1rem;
+  color: white;
+  background-color: #4CAF50;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.cancel-button {
+  background-color: #f44336;
+  margin-left: 4%;
+}
+
+.submit-button:hover,
+.cancel-button:hover {
+  opacity: 0.9;
+}
+
+/* Espacio entre elementos */
+.order-id-text,
+.order-number-text {
+  margin-bottom: 10px;
+}
