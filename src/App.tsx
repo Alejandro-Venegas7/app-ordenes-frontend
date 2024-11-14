@@ -7,8 +7,10 @@ import './styles/global.css';
 import axios from 'axios';
 import { Order } from './types';
 
+// Obtener la URL base de la API desde las variables de entorno
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+console.log('API URL:', import.meta.env.VITE_API_URL);
 const App: React.FC = () => {
-  // Estado de la aplicación
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
   const [orders, setOrders] = useState<Order[]>([]);
@@ -16,7 +18,6 @@ const App: React.FC = () => {
   const [viewOrderStatus, setViewOrderStatus] = useState(false);
   const [editingOrder, setEditingOrder] = useState<Order | null>(null);
 
-  // Funciones para manejar eventos de login
   const handleLoginClick = () => setShowLogin(true);
 
   const handleLoginSuccess = () => {
@@ -24,7 +25,6 @@ const App: React.FC = () => {
     setShowLogin(false);
   };
 
-  // Funciones para manejar las órdenes
   const handleAddOrder = (order: Order) => {
     setOrders([...orders, order]);
     setFilteredOrders([...orders, order]);
@@ -33,7 +33,7 @@ const App: React.FC = () => {
   const handleUpdateOrder = async (updatedOrder: Order) => {
     try {
       const response = await axios.put(
-        `http://localhost:4000/api/orders/${updatedOrder._id}`,
+        `${API_URL}/api/orders/${updatedOrder._id}`,
         updatedOrder
       );
       const updatedOrders = orders.map(order =>
@@ -50,7 +50,7 @@ const App: React.FC = () => {
   const handleDeleteOrder = async (orderId: string) => {
     if (window.confirm('¿Estás seguro de que quieres eliminar esta orden?')) {
       try {
-        await axios.delete(`http://localhost:4000/api/orders/${orderId}`);
+        await axios.delete(`${API_URL}/api/orders/${orderId}`);
         const updatedOrders = orders.filter(order => order._id !== orderId);
         setOrders(updatedOrders);
         setFilteredOrders(updatedOrders);
@@ -64,10 +64,9 @@ const App: React.FC = () => {
     setFilteredOrders(searchResults);
   };
 
-  // Función para obtener las órdenes desde la API
   const fetchOrders = async () => {
     try {
-      const response = await axios.get('http://localhost:4000/api/orders');
+      const response = await axios.get(`${API_URL}/api/orders`);
       setOrders(response.data);
       setFilteredOrders(response.data);
     } catch (error) {
@@ -75,14 +74,12 @@ const App: React.FC = () => {
     }
   };
 
-  // Efecto para obtener las órdenes cuando el usuario está logueado
   useEffect(() => {
     if (isLoggedIn) {
       fetchOrders();
     }
   }, [isLoggedIn]);
 
-  // Renderizado de la UI
   return (
     <div className="app-container">
       {viewOrderStatus ? (
