@@ -101,7 +101,8 @@ const OrdersForm: React.FC<OrdersFormProps> = ({
         const updatedOrder = { ...orderData, _id: editingOrder._id };
         await onUpdateOrder(updatedOrder);
       } else {
-        const response = await axios.post('http://localhost:4000/api/orders', orderData);
+        const response = await axios.post('https://app-ordenes-backend.onrender.com/api/orders', orderData);
+
         onAddOrder(response.data);
       }
       resetForm();

@@ -13,7 +13,8 @@ const OrderStatus: React.FC = () => {
     setOrder(null);
 
     try {
-      const response = await fetch(`http://localhost:4000/api/orders/${orderNumber}`);
+      const response = await fetch(`https://app-ordenes-backend.onrender.com/api/orders/${orderNumber}`);
+
       if (response.ok) {
         const data = await response.json();
         setOrder(data);
