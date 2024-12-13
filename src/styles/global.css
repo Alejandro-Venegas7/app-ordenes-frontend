@@ -683,3 +683,22 @@ body {
 
 /*********************************Dispositivos moviles******************************************************************/
 
+.export-pdf-button {
+  margin: 20px;
+  padding: 10px 20px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+.export-pdf-button:hover {
+  background-color: #45a049;
+}
+body, h1, h2, p {
+  line-height: 1.5;
+}
+body {
+  font-size: 16px; /* Ajusta el tamaño */
+  letter-spacing: 0.5px; /* Agrega un pequeño espaciado entre las letras */
+}

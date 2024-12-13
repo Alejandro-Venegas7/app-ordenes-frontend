@@ -6,10 +6,12 @@ import OrderStatus from './OrderStatus';
 import './styles/global.css';
 import axios from 'axios';
 import { Order } from './types';
+import { jsPDF } from 'jspdf';
 
 // Obtener la URL base de la API desde las variables de entorno
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
 console.log('API URL:', import.meta.env.VITE_API_URL);
+
 const App: React.FC = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
@@ -80,6 +82,30 @@ const App: React.FC = () => {
     }
   }, [isLoggedIn]);
 
+  // Función para exportar las órdenes a PDF
+  const exportToPDF = () => {
+    const doc = new jsPDF();
+
+    // Título
+    doc.text("Listado de Órdenes", 20, 20);
+
+    // Añadir las órdenes al PDF
+    filteredOrders.forEach((order, index) => {
+      const yPosition = 30 + index * 40;
+      doc.text(`Orden #${order._id}`, 20, yPosition);
+      doc.text(`Marca: ${order.brand}`, 20, yPosition + 10);
+      doc.text(`Modelo: ${order.model}`, 20, yPosition + 20);
+      doc.text(`Tipo de Reparación: ${order.repairType}`, 20, yPosition + 30);
+      doc.text(`Costo: $${order.cost}`, 20, yPosition + 40);
+      doc.text(`Cliente: ${order.customerName}`, 20, yPosition + 50);
+      doc.text(`Teléfono: ${order.customerPhone}`, 20, yPosition + 60);
+      doc.text(`Dirección: ${order.customerAddress}`, 20, yPosition + 70);
+    });
+
+    // Descargar el archivo PDF
+    doc.save("ordenes.pdf");
+  };
+
   return (
     <div className="app-container">
       {viewOrderStatus ? (
@@ -102,6 +128,11 @@ const App: React.FC = () => {
           />
           <div className="orders-list">
             <h2>Órdenes</h2>
+            <div className="orders-actions">
+              <button onClick={exportToPDF} className="export-pdf-button">
+                Exportar a PDF
+              </button>
+            </div>
             <div className="orders-grid">
               {filteredOrders.map((order) => (
                 <div key={order._id} className="order-card">
