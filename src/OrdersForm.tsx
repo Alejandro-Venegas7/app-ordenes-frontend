@@ -28,6 +28,7 @@ const OrdersForm: React.FC<OrdersFormProps> = ({
   const [status, setStatus] = useState<OrderStatus>('En proceso');
   const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
+  const [fetchedOrders, setFetchedOrders] = useState<Order[]>([]);
 
   useEffect(() => {
     if (editingOrder) {
@@ -41,6 +42,17 @@ const OrdersForm: React.FC<OrdersFormProps> = ({
       setStatus(editingOrder.status);
     }
   }, [editingOrder]);
+
+  // Función para obtener las órdenes desde el backend
+  const fetchOrders = async () => {
+    try {
+      const response = await axios.get('https://app-ordenes-backend.onrender.com/api/orders');
+      setFetchedOrders(response.data);
+    } catch (error) {
+      console.error('Error al obtener las órdenes:', error);
+      setError('Error al obtener las órdenes');
+    }
+  };
 
   const handleSearch = (value: string) => {
     setSearchTerm(value);
@@ -254,6 +266,25 @@ const OrdersForm: React.FC<OrdersFormProps> = ({
           </button>
         )}
       </form>
+
+      {/* Botón para cargar las órdenes guardadas */}
+      <button onClick={fetchOrders} className="view-orders-button">
+        Ver Órdenes Guardadas
+      </button>
+
+      {/* Mostrar las órdenes obtenidas */}
+      {fetchedOrders.length > 0 && (
+        <div className="orders-list">
+          <h3>Órdenes Guardadas</h3>
+          <ul>
+            {fetchedOrders.map(order => (
+              <li key={order._id}>
+                {order.customerName} - {order.brand} - {order.status}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   );
 };

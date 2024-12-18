@@ -3,21 +3,27 @@ import Inicio from './Inicio';
 import Login from './Login';
 import OrdersForm from './OrdersForm';
 import OrderStatus from './OrderStatus';
+import AppointmentForm from './AppointmentForm';
 import './styles/global.css';
 import axios from 'axios';
-import { Order } from './types';
+import { Order, Appointment } from './types';
 import { jsPDF } from 'jspdf';
 
 // Obtener la URL base de la API desde las variables de entorno
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
 console.log('API URL:', import.meta.env.VITE_API_URL);
 
+axios.defaults.baseURL = API_URL;
+
 const App: React.FC = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
   const [orders, setOrders] = useState<Order[]>([]);
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
+  const [filteredAppointments, setFilteredAppointments] = useState<Appointment[]>([]);
   const [viewOrderStatus, setViewOrderStatus] = useState(false);
+  const [showAppointmentForm, setShowAppointmentForm] = useState(false);
   const [editingOrder, setEditingOrder] = useState<Order | null>(null);
 
   const handleLoginClick = () => setShowLogin(true);
@@ -32,12 +38,14 @@ const App: React.FC = () => {
     setFilteredOrders([...orders, order]);
   };
 
+  const handleAddAppointment = (appointment: Appointment) => {
+    setAppointments([...appointments, appointment]);
+    setShowAppointmentForm(false);
+  };
+
   const handleUpdateOrder = async (updatedOrder: Order) => {
     try {
-      const response = await axios.put(
-        `${API_URL}/api/orders/${updatedOrder._id}`,
-        updatedOrder
-      );
+      const response = await axios.put(`/api/orders/${updatedOrder._id}`, updatedOrder);
       const updatedOrders = orders.map(order =>
         order._id === updatedOrder._id ? response.data : order
       );
@@ -52,7 +60,7 @@ const App: React.FC = () => {
   const handleDeleteOrder = async (orderId: string) => {
     if (window.confirm('¿Estás seguro de que quieres eliminar esta orden?')) {
       try {
-        await axios.delete(`${API_URL}/api/orders/${orderId}`);
+        await axios.delete(`/api/orders/${orderId}`);
         const updatedOrders = orders.filter(order => order._id !== orderId);
         setOrders(updatedOrders);
         setFilteredOrders(updatedOrders);
@@ -66,9 +74,13 @@ const App: React.FC = () => {
     setFilteredOrders(searchResults);
   };
 
+  const handleAppointmentSearch = (searchResults: Appointment[]) => {
+    setFilteredAppointments(searchResults);
+  };
+
   const fetchOrders = async () => {
     try {
-      const response = await axios.get(`${API_URL}/api/orders`);
+      const response = await axios.get('/api/orders');
       setOrders(response.data);
       setFilteredOrders(response.data);
     } catch (error) {
@@ -76,20 +88,27 @@ const App: React.FC = () => {
     }
   };
 
+  const fetchAppointments = async () => {
+    try {
+      const response = await axios.get('/api/appointments');
+      setAppointments(response.data);
+      setFilteredAppointments(response.data);
+    } catch (error) {
+      console.error('Error fetching appointments:', error);
+    }
+  };
+
   useEffect(() => {
     if (isLoggedIn) {
       fetchOrders();
+      fetchAppointments();
     }
   }, [isLoggedIn]);
 
-  // Función para exportar las órdenes a PDF
   const exportToPDF = () => {
     const doc = new jsPDF();
-
-    // Título
     doc.text("Listado de Órdenes", 20, 20);
 
-    // Añadir las órdenes al PDF
     filteredOrders.forEach((order, index) => {
       const yPosition = 30 + index * 40;
       doc.text(`Orden #${order._id}`, 20, yPosition);
@@ -102,7 +121,6 @@ const App: React.FC = () => {
       doc.text(`Dirección: ${order.customerAddress}`, 20, yPosition + 70);
     });
 
-    // Descargar el archivo PDF
     doc.save("ordenes.pdf");
   };
 
@@ -110,13 +128,19 @@ const App: React.FC = () => {
     <div className="app-container">
       {viewOrderStatus ? (
         <OrderStatus />
-      ) : !isLoggedIn && !showLogin ? (
+      ) : !isLoggedIn && !showLogin && !showAppointmentForm ? (
         <Inicio 
           onLoginClick={handleLoginClick} 
           onSearchClick={() => setViewOrderStatus(true)}
+          onScheduleAppointmentClick={() => setShowAppointmentForm(true)}
         />
       ) : showLogin && !isLoggedIn ? (
         <Login onLoginSuccess={handleLoginSuccess} />
+      ) : showAppointmentForm ? (
+        <AppointmentForm 
+          onAddAppointment={handleAddAppointment}
+          onCancel={() => setShowAppointmentForm(false)}
+        />
       ) : isLoggedIn ? (
         <>
           <OrdersForm 
@@ -133,6 +157,31 @@ const App: React.FC = () => {
                 Exportar a PDF
               </button>
             </div>
+            
+            <div className="appointments-section">
+              <h3>Citas Programadas</h3>
+              <input 
+                type="text" 
+                placeholder="Buscar cita..." 
+                onChange={(e) => handleAppointmentSearch(appointments.filter((appointment) => 
+                  appointment.customerName.toLowerCase().includes(e.target.value.toLowerCase()) || 
+                  appointment.service.toLowerCase().includes(e.target.value.toLowerCase())
+                ))}
+                style={{ marginBottom: '20px', padding: '10px', width: '100%' }}
+              />
+              <div className="appointments-grid">
+                {filteredAppointments.map((appointment) => (
+                  <div key={appointment._id} className="appointment-card">
+                    <p><strong>Cliente:</strong> {appointment.customerName}</p>
+                    <p><strong>Servicio:</strong> {appointment.service}</p>
+                    <p><strong>Fecha:</strong> {appointment.appointmentDate}</p>
+                    <p><strong>Hora:</strong> {appointment.appointmentTime}</p>
+                    <p><strong>Estado:</strong> {appointment.status}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
             <div className="orders-grid">
               {filteredOrders.map((order) => (
                 <div key={order._id} className="order-card">

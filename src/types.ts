@@ -13,3 +13,12 @@ export interface Order {
   status: OrderStatus;
   orderNumber: string;
 }
+export interface Appointment {
+  _id?: string;
+  customerName: string;
+  customerPhone: string;
+  appointmentDate: string;
+  appointmentTime: string;
+  service: string;
+  status: 'Programada' | 'Confirmada' | 'Cancelada';
+}
